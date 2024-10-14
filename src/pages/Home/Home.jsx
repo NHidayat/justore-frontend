@@ -2,9 +2,15 @@ import React, { useCallback, useEffect, useState } from 'react';
 import axiosInterface from '../../utils/axiosInterface';
 import ProductCard from '../Products/ProductCard';
 import ProductDialog from '../Products/ProductDialog';
+import { showToast } from '../../utils/customToast';
+import { getErrorResponseMessage } from '../../utils/helper';
+import { BarLoader } from 'react-spinners';
 
 const Home = () => {
   const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [productDialog, setProductDialog] = useState({
     open: false,
     productSku: null
@@ -17,18 +23,47 @@ const Home = () => {
     });
   };
 
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (currentPage) => {
+    setLoading(true);
     try {
-      const { data } = await axiosInterface.get('products');
-      setProducts(data.data.data);
+      const params = {
+        limit: 8,
+        page: currentPage
+      };
+      const { data } = await axiosInterface.get('products', { params });
+      if (data.data.data.length === 0) {
+        setHasMore(false);
+      } else {
+        setProducts((prevProducts) => [...prevProducts, ...data.data.data]);
+      }
     } catch (error) {
-      console.error('Failed to fetch products:', error);
+      showToast('error', getErrorResponseMessage(error));
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    fetchProducts(page);
+  }, [fetchProducts, page]);
+
+  const handleScroll = () => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 100 &&
+      !loading &&
+      hasMore
+    ) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [loading, hasMore]);
 
   return (
     <>
@@ -42,6 +77,7 @@ const Home = () => {
           <ProductCard handleClick={handleProductDialog} info={o} key={o.sku} />
         ))}
       </div>
+      <div className="loader my-8">{loading && <BarLoader width={'100%'} color="blue" />}</div>
     </>
   );
 };
