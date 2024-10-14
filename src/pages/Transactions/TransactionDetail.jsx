@@ -42,7 +42,7 @@ export default function TransactionDetail({ open, handleClose, transactionId }) 
                     {formatDate(transaction.date_created)}
                   </div>
                 </div>
-                <div className="mt-2 grid grid-cols-2">
+                <div className="mt-2 grid grid-cols-2 mb-10">
                   <div className="info-section">
                     <div className="font-bold text-lg mb-2">{transaction.transaction_id}</div>
                     <div className="text-lg font-semibold mb-4">
@@ -54,7 +54,7 @@ export default function TransactionDetail({ open, handleClose, transactionId }) 
                   </div>
                   <div className="items-sections border-s pl-5">
                     <div className="title font-semibold mb-2">Items</div>
-                    {transaction.items.map((item, i) => (
+                    {transaction?.items?.map((item, i) => (
                       <div className="item text-sm mb-4" key={i}>
                         <div className="title">
                           {item.title} x {item.qty}

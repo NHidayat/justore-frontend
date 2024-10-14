@@ -2,12 +2,8 @@
   @apply flex flex-col w-full
 }
 
-input{
-  /* padding: 15px;
-  margin: 10px 0px;
-  border-radius: 5px; */
-  /* border: 1px solid gray; */
-  @apply p-4 my-5 mx-0 border-x border-y border-gray-700 rounded-md;
+input, textarea{
+  @apply p-2 my-5 mx-0 border-x border-y border-gray-700 rounded-md w-full;
 }
 
 

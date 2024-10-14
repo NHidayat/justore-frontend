@@ -13,7 +13,8 @@ import cartStore from '../store/cartStore';
 
 const navigation = [
   { name: 'Home', href: '/', current: false },
-  { name: 'Product', href: '/product', current: false }
+  { name: 'Products', href: '/products', current: false },
+  { name: 'Transactions', href: '/transactions', current: false }
 ];
 
 function classNames(...classes) {

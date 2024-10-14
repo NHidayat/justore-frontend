@@ -60,7 +60,7 @@ const Checkout = () => {
       };
       await axiosInterface.post('transactions', payload);
       showToast('success', 'Your transaction is successfully');
-      setTimeout(() => navigate('/transactions'), 1500);
+      navigate('/transactions');
     } catch (error) {
       showToast('error', getErrorResponseMessage(error));
     } finally {

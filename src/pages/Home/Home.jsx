@@ -1,11 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import cartStore from '../../store/cartStore';
 import axiosInterface from '../../utils/axiosInterface';
-import ProductCard from '../Product/ProductCard';
-import ProductDialog from '../Product/ProductDialog';
+import ProductCard from '../Products/ProductCard';
+import ProductDialog from '../Products/ProductDialog';
 
 const Home = () => {
-  const { cart } = cartStore();
   const [products, setProducts] = useState([]);
   const [productDialog, setProductDialog] = useState({
     open: false,
@@ -31,10 +29,6 @@ const Home = () => {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
-
-  useEffect(() => {
-    console.log(cart);
-  }, [cart]);
 
   return (
     <>

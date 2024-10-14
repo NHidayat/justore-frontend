@@ -24,7 +24,9 @@ const Cart = () => {
                   <div className="col-span-10 box-content">
                     <div className="item-info flex justify-between mb-4">
                       <div className="item-title text-base">{o.title}</div>
-                      <div className="item-price font-semibold text-lg">$ {o.amount}</div>
+                      <div className="item-price font-semibold text-lg">
+                        $ {formatDecimal(o.amount)}
+                      </div>
                     </div>
                     <div className="item-counter flex justify-end align-middle">
                       <button className="c-btn-counter" onClick={() => reduceQuantity(o.sku)}>
@@ -48,8 +50,9 @@ const Cart = () => {
             </div>
             <div className="summary-footer">
               <Button
-                className="c-btn c-btn-primary c-btn-full"
-                onClick={() => navigate('/checkout')}>
+                className="c-btn c-btn-primary c-btn-full disabled:bg-blue-300"
+                onClick={() => navigate('/checkout')}
+                disabled={!totalQuantity()}>
                 Checkout ({totalQuantity()})
               </Button>
             </div>
