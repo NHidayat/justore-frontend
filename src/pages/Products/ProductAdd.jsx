@@ -1,13 +1,13 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import PropTypes from 'prop-types';
+import { useState } from 'react';
+import { BarLoader } from 'react-spinners';
 import FormInput from '../../components/FormInput';
-import { useEffect, useState } from 'react';
+import axiosInterface from '../../utils/axiosInterface';
 import { showToast } from '../../utils/customToast';
 import { getErrorResponseMessage } from '../../utils/helper';
-import axiosInterface from '../../utils/axiosInterface';
-import { BarLoader } from 'react-spinners';
 
-const ProductEdit = ({ productSku, open, handleOpen, onProcessSuccess }) => {
+const ProductAdd = ({ open, handleOpen, onProcessSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [values, setValues] = useState({
     title: '',
@@ -31,13 +31,13 @@ const ProductEdit = ({ productSku, open, handleOpen, onProcessSuccess }) => {
       e.preventDefault();
       const formData = new FormData();
       formData.append('title', values.title);
-      if (values.image) formData.append('image', values.image);
+      formData.append('image', values.image);
       formData.append('price', values.price);
       formData.append('stock', values.stock);
       formData.append('description', values.description);
 
-      await axiosInterface.put('products/' + productSku, formData);
-      showToast('success', 'Success edit product');
+      await axiosInterface.post('products', formData);
+      showToast('success', 'Success create new product!');
       handleOpen();
       onProcessSuccess();
     } catch (error) {
@@ -46,19 +46,6 @@ const ProductEdit = ({ productSku, open, handleOpen, onProcessSuccess }) => {
       setLoading(false);
     }
   };
-
-  const fetchProductDetail = async (sku) => {
-    try {
-      const result = await axiosInterface.get('products/' + sku);
-      setValues({ ...result.data.data, image: null });
-    } catch (error) {
-      showToast('error', getErrorResponseMessage(error));
-    }
-  };
-
-  useEffect(() => {
-    if (productSku) fetchProductDetail(productSku);
-  }, [productSku]);
 
   return (
     <>
@@ -70,7 +57,7 @@ const ProductEdit = ({ productSku, open, handleOpen, onProcessSuccess }) => {
         <DialogBackdrop className="fixed inset-0 bg-black/30" />
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
           <DialogPanel className="min-w-96 space-y-4 border bg-white p-12 rounded-md">
-            <DialogTitle className="font-bold">Edit Product</DialogTitle>
+            <DialogTitle className="font-bold">Add New Product</DialogTitle>
             <div>
               <form onSubmit={handleSubmit}>
                 <FormInput
@@ -81,7 +68,13 @@ const ProductEdit = ({ productSku, open, handleOpen, onProcessSuccess }) => {
                   onChange={onChange}
                   required
                 />
-                <FormInput type={'file'} name={'image'} label={'Image'} onChange={onChangeImage} />
+                <FormInput
+                  type={'file'}
+                  name={'image'}
+                  label={'Image'}
+                  onChange={onChangeImage}
+                  required
+                />
                 <FormInput
                   name={'price'}
                   label={'Price'}
@@ -125,11 +118,11 @@ const ProductEdit = ({ productSku, open, handleOpen, onProcessSuccess }) => {
   );
 };
 
-ProductEdit.propTypes = {
+ProductAdd.propTypes = {
   productSku: PropTypes.string,
   open: PropTypes.bool,
   handleOpen: PropTypes.func,
   onProcessSuccess: PropTypes.func
 };
 
-export default ProductEdit;
+export default ProductAdd;

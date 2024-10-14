@@ -3,13 +3,22 @@ import axiosInterface from '../../utils/axiosInterface';
 import { showToast } from '../../utils/customToast';
 import { formatDecimal, getErrorResponseMessage } from '../../utils/helper';
 import ProductEdit from './ProductEdit';
+import CustomPagination from '../../components/CustomPagination';
+import ProductAdd from './ProductAdd';
 
 const Product = () => {
   const [products, setProducts] = useState([]);
+  const [pageInfo, setPageInfo] = useState({
+    page: 1,
+    totalData: 0,
+    totalPage: 0
+  });
   const [productEditDialog, setProductEditDialog] = useState({
     open: false,
     productSku: null
   });
+
+  const [productAddDialogOpen, setProductAddDialogOpen] = useState(false);
 
   const handleOpenProductEditDialog = (productSku) => {
     setProductEditDialog({
@@ -21,28 +30,51 @@ const Product = () => {
   const fetchProducts = async () => {
     try {
       const params = {
-        page: 1,
+        page: pageInfo.page,
         limit: 10
       };
       const { data } = await axiosInterface.get('products', { params });
       setProducts(data.data.data);
+      setPageInfo(data.data.pageInfo);
     } catch (error) {
       showToast('error', getErrorResponseMessage(error));
     }
   };
 
+  const onPageChange = (page) => {
+    setPageInfo({ ...pageInfo, page });
+  };
+
+  const onDialogSuccess = () => {
+    fetchProducts();
+  };
+
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [pageInfo.page]);
+
   return (
     <div className="content">
       <ProductEdit
         productSku={productEditDialog.productSku}
         open={productEditDialog.open}
         handleOpen={handleOpenProductEditDialog}
+        onProcessSuccess={onDialogSuccess}
+      />
+      <ProductAdd
+        open={productAddDialogOpen}
+        handleOpen={() => setProductAddDialogOpen(!productAddDialogOpen)}
+        onProcessSuccess={onDialogSuccess}
       />
       <div className="content-title">Products List</div>
       <div className="content-body mt-5">
+        <div className="action mb-5 text-right">
+          <button
+            className="c-btn c-btn-primary hover:cursor-pointer"
+            onClick={() => setProductAddDialogOpen(true)}>
+            Add New Product
+          </button>
+        </div>
         <div className="relative overflow-x-auto box">
           <table className="w-full text-sm text-left rtl:text-right">
             <thead className="text-xs uppercase">
@@ -86,6 +118,14 @@ const Product = () => {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="mt-4 text-sm">Total Data: {pageInfo.totalData}</div>
+        <div className="pagination">
+          <CustomPagination
+            totalPages={pageInfo.totalPage}
+            currentPage={pageInfo.page}
+            onPageChange={onPageChange}
+          />
         </div>
       </div>
     </div>
