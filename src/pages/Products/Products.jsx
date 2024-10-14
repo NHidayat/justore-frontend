@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axiosInterface from '../../utils/axiosInterface';
 import { showToast } from '../../utils/customToast';
 import { formatDecimal, getErrorResponseMessage } from '../../utils/helper';
 import ProductEdit from './ProductEdit';
 import CustomPagination from '../../components/CustomPagination';
 import ProductAdd from './ProductAdd';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 const Product = () => {
   const [products, setProducts] = useState([]);
@@ -13,65 +14,78 @@ const Product = () => {
     totalData: 0,
     totalPage: 0
   });
-  const [productEditDialog, setProductEditDialog] = useState({
-    open: false,
-    productSku: null
+  const [dialogs, setDialogs] = useState({
+    productAdd: { open: false },
+    productEdit: { open: false, productSku: null },
+    productDelete: { open: false, message: '', productSku: '' }
   });
 
-  const [productAddDialogOpen, setProductAddDialogOpen] = useState(false);
-
-  const handleOpenProductEditDialog = (productSku) => {
-    setProductEditDialog({
-      open: !productEditDialog.open,
-      productSku
-    });
+  const toggleDialog = (type, payload = {}) => {
+    setDialogs((prev) => ({
+      ...prev,
+      [type]: { ...prev[type], ...payload }
+    }));
   };
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
-      const params = {
-        page: pageInfo.page,
-        limit: 10
-      };
+      const params = { page: pageInfo.page, limit: 10 };
       const { data } = await axiosInterface.get('products', { params });
       setProducts(data.data.data);
       setPageInfo(data.data.pageInfo);
     } catch (error) {
       showToast('error', getErrorResponseMessage(error));
     }
-  };
+  }, [pageInfo.page]);
 
-  const onPageChange = (page) => {
-    setPageInfo({ ...pageInfo, page });
-  };
-
-  const onDialogSuccess = () => {
-    fetchProducts();
-  };
+  const deleteProduct = useCallback(
+    async (productSku) => {
+      try {
+        await axiosInterface.delete(`products/${productSku}`);
+        showToast('success', 'Success delete product');
+        toggleDialog('productDelete', { open: false });
+        fetchProducts();
+      } catch (error) {
+        showToast('error', getErrorResponseMessage(error));
+      }
+    },
+    [fetchProducts]
+  );
 
   useEffect(() => {
     fetchProducts();
-  }, [pageInfo.page]);
+  }, [fetchProducts]);
+
+  const handlePageChange = (page) => setPageInfo((prev) => ({ ...prev, page }));
+
+  const onDialogSuccess = () => fetchProducts();
 
   return (
     <div className="content">
+      <ConfirmDialog
+        title="Delete Product"
+        message={dialogs.productDelete.message}
+        open={dialogs.productDelete.open}
+        handleOpen={() => toggleDialog('productDelete', { open: !dialogs.productDelete.open })}
+        onConfirm={() => deleteProduct(dialogs.productDelete.productSku)}
+      />
       <ProductEdit
-        productSku={productEditDialog.productSku}
-        open={productEditDialog.open}
-        handleOpen={handleOpenProductEditDialog}
+        productSku={dialogs.productEdit.productSku}
+        open={dialogs.productEdit.open}
+        handleOpen={() => toggleDialog('productEdit', { open: !dialogs.productEdit.open })}
         onProcessSuccess={onDialogSuccess}
       />
       <ProductAdd
-        open={productAddDialogOpen}
-        handleOpen={() => setProductAddDialogOpen(!productAddDialogOpen)}
+        open={dialogs.productAdd.open}
+        handleOpen={() => toggleDialog('productAdd', { open: !dialogs.productAdd.open })}
         onProcessSuccess={onDialogSuccess}
       />
       <div className="content-title">Products List</div>
       <div className="content-body mt-5">
         <div className="action mb-5 text-right">
           <button
-            className="c-btn c-btn-primary hover:cursor-pointer"
-            onClick={() => setProductAddDialogOpen(true)}>
+            className="c-btn c-btn-primary"
+            onClick={() => toggleDialog('productAdd', { open: true })}>
             Add New Product
           </button>
         </div>
@@ -97,22 +111,34 @@ const Product = () => {
               </tr>
             </thead>
             <tbody>
-              {products.map((o, i) => (
+              {products.map((product, i) => (
                 <tr className="border-b" key={i}>
-                  <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap ">
-                    {o.title}
+                  <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap">
+                    {product.title}
                   </th>
-                  <td className="px-6 py-4">{formatDecimal(o.price)}</td>
-                  <td className="px-6 py-4">{o.sku}</td>
-                  <td className="px-6 py-4">{o.stock}</td>
+                  <td className="px-6 py-4">{formatDecimal(product.price)}</td>
+                  <td className="px-6 py-4">{product.sku}</td>
+                  <td className="px-6 py-4">{product.stock}</td>
                   <td className="px-6 py-4">
                     <span
-                      className="font-semibold text-blue-500 hover:cursor-pointer"
-                      onClick={() => handleOpenProductEditDialog(o.sku)}>
+                      className="font-semibold text-blue-500 cursor-pointer"
+                      onClick={() =>
+                        toggleDialog('productEdit', { open: true, productSku: product.sku })
+                      }>
                       Edit
                     </span>
-                    <span className="text-gray-400 ">{' | '}</span>
-                    <span className="font-semibold text-red-500 hover:cursor-pointer">Delete</span>
+                    <span className="text-gray-400"> | </span>
+                    <span
+                      className="font-semibold text-red-500 cursor-pointer"
+                      onClick={() =>
+                        toggleDialog('productDelete', {
+                          open: true,
+                          message: `Are you sure you want to delete ${product.title}?`,
+                          productSku: product.sku
+                        })
+                      }>
+                      Delete
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -120,13 +146,11 @@ const Product = () => {
           </table>
         </div>
         <div className="mt-4 text-sm">Total Data: {pageInfo.totalData}</div>
-        <div className="pagination">
-          <CustomPagination
-            totalPages={pageInfo.totalPage}
-            currentPage={pageInfo.page}
-            onPageChange={onPageChange}
-          />
-        </div>
+        <CustomPagination
+          totalPages={pageInfo.totalPage}
+          currentPage={pageInfo.page}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );
