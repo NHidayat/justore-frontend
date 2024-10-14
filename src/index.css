@@ -24,7 +24,7 @@
 }
 
 .c-btn-primary {
-  @apply text-white transition-all bg-blue-500 hover:bg-blue-600;
+  @apply text-white transition-all bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300;
 }
 
 .c-btn-full {

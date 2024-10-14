@@ -56,7 +56,8 @@ export default function ProductDialog({ open, handleClose, productSku }) {
                     <div className="action mt-4">
                       <Button
                         className="c-btn c-btn-primary"
-                        onClick={() => handleAddToCart(product)}>
+                        onClick={() => handleAddToCart(product)}
+                        disabled={!product.stock}>
                         Add to cart
                       </Button>
                     </div>

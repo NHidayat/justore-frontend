@@ -23,9 +23,13 @@ const ProductCard = ({ info, handleClick }) => {
       </div>
       <div className="px-6 py-4">
         <div className="text-md mb-1">{info.title}</div>
-        <p className="text-gray-700 text-base font-semibold mb-3">$ {info.price}</p>
+        <div className="text-gray-700 text-base font-semibold mb-3">$ {info.price}</div>
+        <div className="text-gray-700 text-sm mb-3">Stock: {info.stock}</div>
         <div className="button-section">
-          <Button className="c-btn c-btn-full c-btn-primary" onClick={() => handleAddToCart(info)}>
+          <Button
+            className="c-btn c-btn-full c-btn-primary"
+            onClick={() => handleAddToCart(info)}
+            disabled={!info.stock}>
             Add to Card
           </Button>
         </div>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import axiosInterface from '../../utils/axiosInterface';
 import ProductCard from '../Products/ProductCard';
 import ProductDialog from '../Products/ProductDialog';
@@ -15,6 +15,8 @@ const Home = () => {
     open: false,
     productSku: null
   });
+
+  const loaderRef = useRef(null); // Referensi untuk loader
 
   const handleProductDialog = (productSku) => {
     setProductDialog({
@@ -47,21 +49,24 @@ const Home = () => {
     fetchProducts(page);
   }, [fetchProducts, page]);
 
-  const handleScroll = () => {
-    if (
-      window.innerHeight + document.documentElement.scrollTop >=
-        document.documentElement.offsetHeight - 100 &&
-      !loading &&
-      hasMore
-    ) {
-      setPage((prevPage) => prevPage + 1);
-    }
-  };
-
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading && hasMore) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      },
+      { threshold: 1.0 }
+    ); // Mengatur threshold ke 1.0 untuk memicu saat elemen sepenuhnya terlihat
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current);
+      }
     };
   }, [loading, hasMore]);
 
@@ -77,7 +82,9 @@ const Home = () => {
           <ProductCard handleClick={handleProductDialog} info={o} key={i} />
         ))}
       </div>
-      <div className="loader my-8">{loading && <BarLoader width={'100%'} color="blue" />}</div>
+      <div ref={loaderRef} className="loader my-8">
+        {loading && <BarLoader width={'100%'} color="blue" />}
+      </div>
     </>
   );
 };
