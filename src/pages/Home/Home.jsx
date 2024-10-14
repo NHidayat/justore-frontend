@@ -73,8 +73,8 @@ const Home = () => {
         handleClose={handleProductDialog}
       />
       <div className="grid md:grid-cols-4 sm:grid-cols-1 gap-4">
-        {products.map((o) => (
-          <ProductCard handleClick={handleProductDialog} info={o} key={o.sku} />
+        {products.map((o, i) => (
+          <ProductCard handleClick={handleProductDialog} info={o} key={i} />
         ))}
       </div>
       <div className="loader my-8">{loading && <BarLoader width={'100%'} color="blue" />}</div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import FormInput from '../../components/FormInput';
 import cartStore from '../../store/cartStore';
 import { formatDecimal, getErrorResponseMessage } from '../../utils/helper';
@@ -36,7 +36,7 @@ const inputs = [
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { cart } = cartStore();
+  const { cart, totalAmount, clearCart } = cartStore(); // Single destructuring untuk store
   const [loading, setLoading] = useState(false);
   const [values, setValues] = useState({
     receiver_name: '',
@@ -44,33 +44,36 @@ const Checkout = () => {
     receiver_address: ''
   });
 
-  const { totalAmount, clearCart } = cartStore();
-
-  const handleSubmit = async (e) => {
-    try {
-      setLoading(true);
+  const handleSubmit = useCallback(
+    async (e) => {
       e.preventDefault();
-      clearCart();
-      const payload = {
-        ...values,
-        items: cart.map((o) => ({
-          sku: o.sku,
-          qty: o.quantity
-        }))
-      };
-      await axiosInterface.post('transactions', payload);
-      showToast('success', 'Your transaction is successfully');
-      navigate('/transactions');
-    } catch (error) {
-      showToast('error', getErrorResponseMessage(error));
-    } finally {
-      setLoading(false);
-    }
-  };
+      setLoading(true);
+      try {
+        const payload = {
+          ...values,
+          items: cart.map((o) => ({
+            sku: o.sku,
+            qty: o.quantity
+          }))
+        };
+        await axiosInterface.post('transactions', payload);
+        clearCart();
+        showToast('success', 'Your transaction is successfully');
+        navigate('/transactions');
+      } catch (error) {
+        showToast('error', getErrorResponseMessage(error));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [cart, values, clearCart, navigate]
+  );
 
-  const onChange = (e) => {
-    setValues({ ...values, [e.target.name]: e.target.value });
-  };
+  const onChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setValues((prevValues) => ({ ...prevValues, [name]: value }));
+  }, []);
+
   return (
     <>
       <div className="content-title">Checkout</div>
@@ -85,9 +88,11 @@ const Checkout = () => {
               disabled={loading}>
               PROCESS ($ {formatDecimal(totalAmount())})
             </button>
-            <div className="loader mt-4">
-              {loading && <BarLoader width={'100%'} color="blue" />}
-            </div>
+            {loading && (
+              <div className="loader mt-4">
+                <BarLoader width="100%" color="blue" />
+              </div>
+            )}
           </form>
         </div>
       </div>
