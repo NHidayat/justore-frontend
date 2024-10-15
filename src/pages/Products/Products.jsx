@@ -21,6 +21,8 @@ const Product = () => {
   });
 
   const toggleDialog = (type, payload = {}) => {
+    console.log(payload);
+
     setDialogs((prev) => ({
       ...prev,
       [type]: { ...prev[type], ...payload }

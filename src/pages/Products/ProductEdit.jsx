@@ -106,7 +106,10 @@ const ProductEdit = ({ productSku, open, handleOpen, onProcessSuccess }) => {
                   value={values.description}
                   onChange={onChange}></textarea>
                 <div className="flex gap-4">
-                  <button onClick={() => handleOpen()} className="c-btn bg-red-500 text-white">
+                  <button
+                    onClick={() => handleOpen()}
+                    type="reset"
+                    className="c-btn bg-red-500 text-white">
                     Cancel
                   </button>
                   <button className="c-btn c-btn-primary" disabled={loading}>
