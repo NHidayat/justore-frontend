@@ -13,8 +13,8 @@ const Cart = () => {
     <div className="content">
       <div className="content-title text-xl font-bold text-gray-700 mb-4">Your Cart</div>
       <div className="content-body">
-        <div className="grid grid-cols-12 gap-6">
-          <div className="cart col-span-7">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="cart lg:col-span-7">
             <div className="cart-list text-gray-700">
               {cart.map((o, i) => (
                 <div className="cart-item box grid  grid-cols-12 gap-2 mb-2" key={i}>
@@ -42,7 +42,7 @@ const Cart = () => {
               ))}
             </div>
           </div>
-          <div className="summary box col-span-5 p-5 max-h-fit text-gray-700">
+          <div className="summary box lg:col-span-5 p-5 max-h-fit text-gray-700">
             <div className="summary-header font-semibold mb-4">Shopping Summary</div>
             <div className="summary-body mb-4 flex justify-between align-bottom">
               <span>Total</span>
