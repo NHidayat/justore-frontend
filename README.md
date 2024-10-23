@@ -1,4 +1,3 @@
-
 # Justrore Frontend
 
 ## Introduction
@@ -33,13 +32,15 @@ cp .env.example .env
 ```bash
 npm start
 ```
+
 And tadaaa 👍🏻, your application is already running. All you have to do is add features according to your needs.
+
 ## Authors
 
 - [@NHidayat](https://www.github.com/NHidayat)
 
-
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
+
 # sca-lastmile-sync

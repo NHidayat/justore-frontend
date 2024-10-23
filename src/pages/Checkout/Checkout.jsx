@@ -1,11 +1,12 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { BarLoader } from 'react-spinners';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import FormInput from '../../components/FormInput';
 import cartStore from '../../store/cartStore';
-import { formatDecimal, getErrorResponseMessage } from '../../utils/helper';
-import { BarLoader } from 'react-spinners';
-import { showToast } from '../../utils/customToast';
 import axiosInterface from '../../utils/axiosInterface';
-import { useNavigate } from 'react-router-dom';
+import { showToast } from '../../utils/customToast';
+import { formatDecimal, getErrorResponseMessage } from '../../utils/helper';
 
 const inputs = [
   {
@@ -36,13 +37,19 @@ const inputs = [
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { cart, totalAmount, clearCart } = cartStore(); // Single destructuring untuk store
+  const { cart, totalAmount, clearCart } = cartStore();
   const [loading, setLoading] = useState(false);
+  const [configOpen, setConfirmOpen] = useState(false);
   const [values, setValues] = useState({
     receiver_name: '',
     receiver_phone: '',
     receiver_address: ''
   });
+
+  const handlePreSubmit = (e) => {
+    e.preventDefault();
+    setConfirmOpen(true);
+  };
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -76,16 +83,24 @@ const Checkout = () => {
 
   return (
     <>
+      <ConfirmDialog
+        message={
+          'Are you sure you want to proceed with this transaction? Please review your details before confirming.'
+        }
+        open={configOpen}
+        onConfirm={handleSubmit}
+        handleOpen={() => setConfirmOpen(!configOpen)}
+      />
       <div className="content-title">Checkout</div>
       <div className="content-body">
         <div className="form-section">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handlePreSubmit}>
             {inputs.map((input) => (
               <FormInput key={input.id} {...input} value={values[input.name]} onChange={onChange} />
             ))}
             <button
               className="c-btn c-btn-primary c-btn-big w-full mt-4 disabled:bg-blue-400"
-              disabled={loading}>
+              disabled={loading || !totalAmount()}>
               PROCESS ($ {formatDecimal(totalAmount())})
             </button>
             {loading && (

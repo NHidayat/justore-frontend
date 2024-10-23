@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 .box {
   @apply bg-white rounded-md shadow-md overflow-hidden;
 }
@@ -20,7 +19,7 @@
 }
 
 .c-btn-big {
-  @apply py-3
+  @apply py-3;
 }
 
 .c-btn-primary {
@@ -34,5 +33,3 @@
 .c-btn-counter {
   @apply cursor-pointer border-2 border-blue-400 text-blue-400 w-6 h-6 leading-3 relative font-bold rounded-full;
 }
-
-

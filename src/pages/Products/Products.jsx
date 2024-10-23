@@ -125,7 +125,10 @@ const Product = () => {
                     <span
                       className="font-semibold text-blue-500 cursor-pointer"
                       onClick={() =>
-                        toggleDialog('productEdit', { open: true, productSku: product.sku })
+                        toggleDialog('productEdit', {
+                          open: true,
+                          productSku: product.sku
+                        })
                       }>
                       Edit
                     </span>

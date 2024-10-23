@@ -8,8 +8,15 @@ import ConfirmDialog from '../../components/ConfirmDialog';
 
 const Transactions = () => {
   const [transactionsList, setTransactionsList] = useState([]);
-  const [pageInfo, setPageInfo] = useState({ page: 1, totalData: 0, totalPage: 0 });
-  const [transactionDetail, setTransactionDetail] = useState({ open: false, transactionId: null });
+  const [pageInfo, setPageInfo] = useState({
+    page: 1,
+    totalData: 0,
+    totalPage: 0
+  });
+  const [transactionDetail, setTransactionDetail] = useState({
+    open: false,
+    transactionId: null
+  });
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
     title: '',

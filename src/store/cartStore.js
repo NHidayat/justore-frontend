@@ -31,7 +31,9 @@ const cartStore = create((set, get) => ({
           })
         };
       } else {
-        return { cart: [...state.cart, { ...product, quantity: 1, amount: 1 * product.price }] };
+        return {
+          cart: [...state.cart, { ...product, quantity: 1, amount: 1 * product.price }]
+        };
       }
     }),
 
